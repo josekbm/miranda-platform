@@ -1,0 +1,27 @@
+---
+interface Props {
+  pretitle?: string;
+  title: string;
+  description?: string;
+  align?: "left" | "center";
+  tone?: "light" | "dark";
+  class?: string;
+}
+
+const {
+  pretitle,
+  title,
+  description,
+  align = "left",
+  tone = "dark",
+  class: className = "",
+} = Astro.props;
+
+const light = tone === "light";
+---
+
+<div class:list={["max-w-3xl", align === "center" ? "mx-auto text-center" : "", className]}>
+  {pretitle && <p class:list={["pretitle", light ? "text-brass-400" : ""]}>{pretitle}</p>}
+  <h2 class:list={["display-2 mt-3", light ? "text-white" : "text-ink-900"]}>{title}</h2>
+  {description && <p class:list={["body-lg mt-5", light ? "text-white/70" : ""]}>{description}</p>}
+</div>

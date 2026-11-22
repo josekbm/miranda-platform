@@ -1,0 +1,87 @@
+---
+import type { Locale } from "../i18n/ui";
+import { getTranslations, routeFor } from "../i18n/ui";
+import Icon from "./Icon.astro";
+
+interface Props {
+  locale: Locale;
+  class?: string;
+}
+
+const { locale, class: className = "" } = Astro.props;
+const t = getTranslations(locale);
+const today = new Date().toISOString().slice(0, 10);
+---
+
+<form
+  action={routeFor(locale, "rooms")}
+  method="get"
+  class:list={[
+    "grid gap-4 rounded-[1.75rem] border border-ink-900/10 bg-white/95 p-5 shadow-[0_24px_80px_rgba(29,27,24,0.16)] backdrop-blur md:grid-cols-[1fr_1fr_0.8fr_auto] md:items-end md:p-6",
+    className,
+  ]}
+>
+  <div>
+    <label
+      for="check-in"
+      class="text-[10px] font-semibold uppercase tracking-[0.22em] text-ink-500"
+    >
+      {t.common.checkIn}
+    </label>
+    <div class="mt-2 flex items-center gap-2 border-b border-ink-900/15 pb-2">
+      <Icon name="calendar" class="h-4 w-4 text-terracotta-500" />
+      <input
+        id="check-in"
+        name="checkIn"
+        type="date"
+        min={today}
+        required
+        class="w-full bg-transparent text-sm font-medium text-ink-900 focus:outline-none"
+      >
+    </div>
+  </div>
+
+  <div>
+    <label
+      for="check-out"
+      class="text-[10px] font-semibold uppercase tracking-[0.22em] text-ink-500"
+    >
+      {t.common.checkOut}
+    </label>
+    <div class="mt-2 flex items-center gap-2 border-b border-ink-900/15 pb-2">
+      <Icon name="calendar" class="h-4 w-4 text-terracotta-500" />
+      <input
+        id="check-out"
+        name="checkOut"
+        type="date"
+        min={today}
+        required
+        class="w-full bg-transparent text-sm font-medium text-ink-900 focus:outline-none"
+      >
+    </div>
+  </div>
+
+  <div>
+    <label for="guests" class="text-[10px] font-semibold uppercase tracking-[0.22em] text-ink-500">
+      {t.common.guests}
+    </label>
+    <div class="mt-2 flex items-center gap-2 border-b border-ink-900/15 pb-2">
+      <Icon name="users" class="h-4 w-4 text-terracotta-500" />
+      <select
+        id="guests"
+        name="guests"
+        class="w-full bg-transparent text-sm font-medium text-ink-900 focus:outline-none"
+      >
+        <option value="1">1</option>
+        <option value="2" selected>2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+      </select>
+    </div>
+  </div>
+
+  <button type="submit" class="btn-gold h-12 whitespace-nowrap">
+    {t.common.searchAvailability}
+    <Icon name="arrow-right" class="h-4 w-4" />
+  </button>
+</form>

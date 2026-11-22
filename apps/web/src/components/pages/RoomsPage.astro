@@ -1,0 +1,156 @@
+---
+import { type RoomData, type RoomType, roomName, rooms, roomTypeLabel } from "../../data/rooms";
+import { imageUrl } from "../../data/site";
+import type { Locale } from "../../i18n/ui";
+import { getTranslations, roomPath, routeFor } from "../../i18n/ui";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import BookingSearch from "../BookingSearch.astro";
+import Icon from "../Icon.astro";
+import PageHero from "../PageHero.astro";
+import RoomCard from "../RoomCard.astro";
+import SectionHeading from "../SectionHeading.astro";
+
+interface Props {
+  locale: Locale;
+  roomsData?: RoomData[];
+}
+
+const { locale, roomsData = rooms } = Astro.props;
+const t = getTranslations(locale);
+const typeParam = Astro.url.searchParams.get("type") as RoomType | null;
+const filteredRooms = typeParam ? roomsData.filter((room) => room.type === typeParam) : roomsData;
+const site = Astro.site ?? new URL(Astro.url.origin);
+
+const filters: { type: RoomType | null; label: string }[] = [
+  { type: null, label: locale === "es" ? "Todas" : "All" },
+  { type: "SINGLE", label: roomTypeLabel("SINGLE", locale) },
+  { type: "DOUBLE", label: roomTypeLabel("DOUBLE", locale) },
+  { type: "DOUBLE_SUPERIOR", label: roomTypeLabel("DOUBLE_SUPERIOR", locale) },
+  { type: "SUITE", label: roomTypeLabel("SUITE", locale) },
+];
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  name: locale === "es" ? "Habitaciones de Hotel Miranda" : "Hotel Miranda rooms",
+  itemListElement: roomsData.map((room, index) => ({
+    "@type": "ListItem",
+    position: index + 1,
+    url: new URL(roomPath(locale, room.slug), site).toString(),
+    name: roomName(room, locale),
+  })),
+};
+---
+
+<BaseLayout
+  locale={locale}
+  title={locale === "es" ? "Habitaciones · Hotel Miranda" : "Rooms · Hotel Miranda"}
+  description={t.rooms.heroLead}
+  image={imageUrl("https://images.unsplash.com/photo-1618773928121-c32242e63f39", 1600)}
+  alternatePath={locale === "es" ? "/en/rooms" : "/habitaciones"}
+  jsonLd={jsonLd}
+>
+  <PageHero
+    locale={locale}
+    pretitle={t.rooms.heroPretitle}
+    title={t.rooms.heroTitle}
+    lead={t.rooms.heroLead}
+    image="https://images.unsplash.com/photo-1618773928121-c32242e63f39"
+    breadcrumb={t.nav.rooms}
+  />
+
+  <section id="rooms" class="container-miranda py-14 lg:py-20">
+    <BookingSearch locale={locale} />
+
+    <div class="mt-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <SectionHeading title={t.rooms.listTitle} description={t.rooms.intro} />
+      <p class="text-sm text-ink-500">
+        {filteredRooms.length} {locale === "es" ? "habitaciones" : "rooms"}
+      </p>
+    </div>
+
+    <div class="mt-8 flex flex-wrap gap-2">
+      {filters.map((filter) => {
+        const href = filter.type
+          ? `${routeFor(locale, "rooms")}?type=${filter.type}`
+          : routeFor(locale, "rooms");
+        const active = filter.type === typeParam || (!filter.type && !typeParam);
+
+        return (
+          <a
+            href={href}
+            class:list={[
+              "rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition",
+              active
+                ? "border-ink-900 bg-ink-900 text-white"
+                : "border-ink-900/15 bg-white text-ink-500 hover:border-brass-400 hover:text-ink-900",
+            ]}
+            aria-current={active ? "page" : undefined}
+          >
+            {filter.label}
+          </a>
+        );
+      })}
+    </div>
+
+    <div class="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {filteredRooms.map((room) => <RoomCard room={room} locale={locale} />)}
+    </div>
+  </section>
+
+  <section class="bg-sea-700 py-16">
+    <div class="container-miranda grid gap-8 md:grid-cols-3">
+      <div class="flex gap-4">
+        <span
+          class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brass-400 text-ink-900"
+        >
+          <Icon name="check" class="h-5 w-5" />
+        </span>
+        <div>
+          <h3 class="font-display text-xl text-white">
+            {locale === "es" ? "Desayuno incluido" : "Breakfast included"}
+          </h3>
+          <p class="mt-2 text-sm leading-6 text-white/55">
+            {locale === "es"
+              ? "Producto local, pan de masa madre y café de tueste lento."
+              : "Local produce, sourdough bread and slow-roasted coffee."}
+          </p>
+        </div>
+      </div>
+      <div class="flex gap-4">
+        <span
+          class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brass-400 text-ink-900"
+        >
+          <Icon name="calendar" class="h-5 w-5" />
+        </span>
+        <div>
+          <h3 class="font-display text-xl text-white">
+            {locale === "es" ? "Cancelación flexible" : "Flexible cancellation"}
+          </h3>
+          <p class="mt-2 text-sm leading-6 text-white/55">
+            {locale === "es"
+              ? "Cancela sin coste hasta 24-72 horas antes, según la habitación."
+              : "Cancel free of charge up to 24-72 hours before, depending on the room."}
+          </p>
+        </div>
+      </div>
+      <div class="flex gap-4">
+        <span
+          class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-brass-400 text-ink-900"
+        >
+          <Icon name="concierge" class="h-5 w-5" />
+        </span>
+        <div>
+          <h3 class="font-display text-xl text-white">
+            {locale === "es" ? "Concierge local" : "Local concierge"}
+          </h3>
+          <p class="mt-2 text-sm leading-6 text-white/55">
+            {locale === "es"
+              ? "Te ayudamos con calas, rutas, reservas y planes fuera de ruta."
+              : "We help with coves, routes, bookings and off-the-beaten-track plans."}
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

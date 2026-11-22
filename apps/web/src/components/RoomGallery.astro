@@ -1,0 +1,49 @@
+---
+import { type RoomData, roomName } from "../data/rooms";
+import { imageUrl } from "../data/site";
+import type { Locale } from "../i18n/ui";
+
+interface Props {
+  room: RoomData;
+  locale: Locale;
+}
+
+const { room, locale } = Astro.props;
+const name = roomName(room, locale);
+const images = room.images.slice(0, 3);
+---
+
+<div class="grid gap-3 md:grid-cols-3 md:grid-rows-2">
+  {images.map((image, index) => {
+    const eager = index === 0;
+    const src = imageUrl(image.url, eager ? 1600 : 900);
+    const srcset = `${imageUrl(image.url, 600)} 600w, ${imageUrl(image.url, 900)} 900w, ${imageUrl(image.url, 1600)} 1600w`;
+    const alt = locale === "es" ? image.altEs : image.altEn;
+
+    return (
+      <div
+        class:list={[
+          "relative overflow-hidden rounded-[1.5rem] bg-sand-200",
+          index === 0
+            ? "aspect-[4/3] md:col-span-2 md:row-span-2 md:aspect-auto md:min-h-[480px]"
+            : "aspect-[4/3] md:aspect-auto md:min-h-0",
+        ]}
+      >
+        <img
+          src={src}
+          srcset={srcset}
+          sizes={index === 0 ? "(min-width: 768px) 66vw, 100vw" : "(min-width: 768px) 33vw, 100vw"}
+          alt={alt}
+          loading={eager ? "eager" : "lazy"}
+          decoding="async"
+          class="h-full w-full object-cover transition duration-700 hover:scale-105"
+        />
+        {index === 0 && (
+          <span class="absolute bottom-4 left-4 rounded-full bg-ink-900/75 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-white backdrop-blur">
+            {name}
+          </span>
+        )}
+      </div>
+    );
+  })}
+</div>

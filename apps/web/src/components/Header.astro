@@ -1,0 +1,122 @@
+---
+import { navItems } from "../data/site";
+import type { Locale } from "../i18n/ui";
+import { alternatePath, getTranslations, routeFor } from "../i18n/ui";
+import Icon from "./Icon.astro";
+import Logo from "./Logo.astro";
+
+interface Props {
+  locale: Locale;
+  currentPath: string;
+  variant?: "overlay" | "solid";
+}
+
+const { locale, currentPath, variant = "solid" } = Astro.props;
+const t = getTranslations(locale);
+const overlay = variant === "overlay";
+const alternative = alternatePath(currentPath, locale);
+
+const isActive = (key: (typeof navItems)[number]) => {
+  const path = routeFor(locale, key);
+  if (key === "home") return currentPath === path || currentPath === "/" || currentPath === "/en/";
+  return currentPath === path || currentPath.startsWith(`${path}/`);
+};
+---
+
+<header
+  class:list={[
+    "z-50",
+    overlay
+      ? "absolute inset-x-0 top-0 text-white"
+      : "sticky top-0 border-b border-ink-900/10 bg-sand-50/90 text-ink-900 backdrop-blur-xl",
+  ]}
+>
+  <div class="container-miranda flex h-24 items-center justify-between gap-8">
+    <Logo href={routeFor(locale, "home")} variant={overlay ? "light" : "dark"} />
+
+    <nav class="hidden items-center gap-8 lg:flex" aria-label="Principal">
+      {navItems.map((key) => (
+        <a
+          href={routeFor(locale, key)}
+          class:list={[
+            "link-underline text-sm font-medium transition",
+            overlay ? "text-white/80 hover:text-white" : "text-ink-700 hover:text-ink-900",
+            isActive(key) ? "after:scale-x-100" : "",
+          ]}
+        >
+          {t.nav[key]}
+        </a>
+      ))}
+    </nav>
+
+    <div class="hidden items-center gap-5 lg:flex">
+      <a
+        href={alternative}
+        class:list={[
+          "text-xs font-semibold uppercase tracking-[0.18em] transition",
+          overlay ? "text-white/65 hover:text-white" : "text-ink-500 hover:text-ink-900",
+        ]}
+      >
+        {t.nav.language}
+      </a>
+      <a
+        href={routeFor(locale, "rooms")}
+        class:list={[
+          "btn",
+          overlay
+            ? "bg-white text-ink-900 hover:bg-brass-400"
+            : "bg-sea-700 text-white hover:bg-ink-900",
+        ]}
+      >
+        {t.nav.book}
+        <Icon name="arrow-up-right" class="h-4 w-4" />
+      </a>
+    </div>
+
+    <details class="group relative lg:hidden">
+      <summary
+        class:list={[
+          "flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-full border transition",
+          overlay
+            ? "border-white/30 text-white hover:border-white/60"
+            : "border-ink-900/15 text-ink-900 hover:border-ink-900/30",
+        ]}
+        aria-label={t.nav.menu}
+      >
+        <Icon name="menu" class="h-5 w-5 group-open:hidden" />
+        <Icon name="close" class="hidden h-5 w-5 group-open:block" />
+      </summary>
+
+      <div
+        class="absolute right-0 top-14 w-72 rounded-[1.75rem] border border-ink-900/10 bg-sand-50 p-6 text-ink-900 shadow-2xl"
+      >
+        <nav class="flex flex-col gap-1" aria-label="Móvil">
+          {navItems.map((key) => (
+            <a
+              href={routeFor(locale, key)}
+              class:list={[
+                "rounded-full px-4 py-3 text-sm font-medium transition hover:bg-white",
+                isActive(key) ? "bg-white text-terracotta-500" : "text-ink-700",
+              ]}
+            >
+              {t.nav[key]}
+            </a>
+          ))}
+        </nav>
+        <div class="mt-4 border-t border-ink-900/10 pt-4">
+          <a
+            href={alternative}
+            class="flex items-center justify-between rounded-full px-4 py-3 text-sm text-ink-500 transition hover:bg-white"
+          >
+            {t.nav.language}
+            <Icon name="arrow-right" class="h-4 w-4" />
+          </a>
+          <a href={routeFor(locale, "rooms")} class="btn-gold mt-3 w-full">
+            {t.nav.book}
+            <Icon name="arrow-up-right" class="h-4 w-4" />
+          </a>
+        </div>
+      </div>
+    </details>
+  </div>
+</header>

@@ -1,0 +1,179 @@
+---
+import { gallery, imageUrl, stats } from "../../data/site";
+import type { Locale } from "../../i18n/ui";
+import { getTranslations, routeFor } from "../../i18n/ui";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ButtonLink from "../ButtonLink.astro";
+import Icon from "../Icon.astro";
+import PageHero from "../PageHero.astro";
+import SectionHeading from "../SectionHeading.astro";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getTranslations(locale);
+const site = Astro.site ?? new URL(Astro.url.origin);
+const pageUrl = new URL(Astro.url.pathname, site).toString();
+const heroImage = "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4";
+const storyImage = imageUrl("https://images.unsplash.com/photo-1540541338287-41700207dee6", 1200);
+const detailImage = imageUrl("https://images.unsplash.com/photo-1571896349842-33c89424de2d", 900);
+
+const values = [
+  {
+    icon: "leaf",
+    title: t.about.value1Title,
+    text: t.about.value1,
+  },
+  {
+    icon: "sun",
+    title: t.about.value2Title,
+    text: t.about.value2,
+  },
+  {
+    icon: "wave",
+    title: t.about.value3Title,
+    text: t.about.value3,
+  },
+];
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  name: locale === "es" ? "Sobre Hotel Miranda" : "About Hotel Miranda",
+  url: pageUrl,
+  description: t.about.lead,
+};
+---
+
+<BaseLayout
+  locale={locale}
+  title={locale === "es" ? "Sobre nosotros · Hotel Miranda" : "About · Hotel Miranda"}
+  description={t.about.lead}
+  image={imageUrl(heroImage, 1600)}
+  alternatePath={locale === "es" ? "/en/about" : "/sobre-nosotros"}
+  jsonLd={jsonLd}
+>
+  <PageHero
+    locale={locale}
+    pretitle={t.about.pretitle}
+    title={t.about.title}
+    lead={t.about.lead}
+    image={heroImage}
+    breadcrumb={t.nav.about}
+  />
+
+  <section class="container-miranda py-20 lg:py-28">
+    <div class="grid items-center gap-14 lg:grid-cols-[0.95fr_1.05fr]">
+      <div class="relative order-2 mx-auto w-full max-w-lg lg:order-1">
+        <div
+          class="absolute -right-5 -top-5 h-full w-full rounded-[2rem] border border-brass-400/60"
+        ></div>
+        <img
+          src={storyImage}
+          alt={locale === "es"
+            ? "Desayuno en la terraza del hotel"
+            : "Breakfast on the hotel terrace"}
+          width="1200"
+          height="900"
+          loading="lazy"
+          decoding="async"
+          class="relative aspect-[4/3] w-full rounded-[2rem] object-cover shadow-2xl"
+        >
+        <img
+          src={detailImage}
+          alt={locale === "es" ? "Piscina del hotel entre palmeras" : "Hotel pool among palm trees"}
+          width="900"
+          height="900"
+          loading="lazy"
+          decoding="async"
+          class="absolute -bottom-8 -right-6 hidden h-40 w-40 rounded-[1.25rem] border-8 border-sand-50 object-cover shadow-xl sm:block"
+        >
+      </div>
+
+      <div class="order-1 lg:order-2">
+        <p class="pretitle">{t.about.storyTitle}</p>
+        <h2 class="display-2 mt-3">{t.about.storyHeading}</h2>
+        <p class="body-lg mt-5">{t.about.lead}</p>
+        <p class="body mt-4">{t.about.story}</p>
+        <div class="mt-8">
+          <ButtonLink href={routeFor(locale, "rooms")} variant="primary">
+            {t.common.viewAllRooms}
+            <Icon name="arrow-right" class="h-4 w-4" />
+          </ButtonLink>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-sand-100 py-20 lg:py-24">
+    <div class="container-miranda">
+      <SectionHeading title={t.about.valuesTitle} align="center" />
+      <div class="mt-12 grid gap-5 md:grid-cols-3">
+        {values.map((value) => (
+          <article class="rounded-[1.5rem] border border-ink-900/10 bg-white p-7">
+            <span class="grid h-12 w-12 place-items-center rounded-full bg-sand-100 text-sea-700">
+              <Icon name={value.icon} class="h-5 w-5" />
+            </span>
+            <h3 class="mt-6 font-display text-2xl text-ink-900">{value.title}</h3>
+            <p class="mt-3 text-sm leading-6 text-ink-500">{value.text}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-sea-700 py-16">
+    <div class="container-miranda grid grid-cols-2 gap-8 md:grid-cols-4">
+      {stats.map((stat) => (
+        <div class="text-center">
+          <p class="font-display text-4xl text-white">{stat.value}</p>
+          <p class="mt-1 text-xs uppercase tracking-[0.16em] text-white/50">
+            {locale === "es" ? stat.labelEs : stat.labelEn}
+          </p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="container-miranda py-20 lg:py-28">
+    <SectionHeading title={t.about.galleryTitle} align="center" />
+    <div class="mt-12 grid auto-rows-[180px] grid-cols-2 gap-3 sm:auto-rows-[220px] lg:grid-cols-4">
+      {gallery.slice(0, 4).map((item, index) => (
+        <div
+          class:list={[
+            "group relative overflow-hidden rounded-[1.25rem] bg-sand-200",
+            index === 0 ? "col-span-2 row-span-2" : "",
+          ]}
+        >
+          <img
+            src={imageUrl(item.url, index === 0 ? 1200 : 800)}
+            alt={locale === "es" ? item.altEs : item.altEn}
+            width="800"
+            height="600"
+            loading="lazy"
+            decoding="async"
+            class="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+          />
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="bg-ink-900 py-20">
+    <div
+      class="container-miranda flex flex-col items-start justify-between gap-8 md:flex-row md:items-center"
+    >
+      <div>
+        <p class="pretitle text-brass-400">{t.nav.book}</p>
+        <h2 class="display-2 mt-3 max-w-2xl text-white">{t.home.ctaTitle}</h2>
+        <p class="mt-4 max-w-xl text-white/55">{t.home.ctaLead}</p>
+      </div>
+      <ButtonLink href={routeFor(locale, "rooms")} variant="gold" class="shrink-0">
+        {t.home.ctaButton}
+        <Icon name="arrow-right" class="h-4 w-4" />
+      </ButtonLink>
+    </div>
+  </section>
+</BaseLayout>

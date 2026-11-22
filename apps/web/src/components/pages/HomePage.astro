@@ -1,0 +1,307 @@
+---
+import { rooms } from "../../data/rooms";
+import { gallery, hotel, imageUrl, offers, stats, testimonials } from "../../data/site";
+import type { Locale } from "../../i18n/ui";
+import { getTranslations, routeFor } from "../../i18n/ui";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import BookingSearch from "../BookingSearch.astro";
+import ButtonLink from "../ButtonLink.astro";
+import ExperienceGrid from "../ExperienceGrid.astro";
+import Icon from "../Icon.astro";
+import OfferCard from "../OfferCard.astro";
+import RoomCard from "../RoomCard.astro";
+import SectionHeading from "../SectionHeading.astro";
+import TestimonialCard from "../TestimonialCard.astro";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = getTranslations(locale);
+const featuredRooms = rooms.slice(0, 3);
+const homeOffers = offers.slice(0, 2);
+const site = Astro.site ?? new URL(Astro.url.origin);
+const pageUrl = new URL(Astro.url.pathname, site).toString();
+const heroImage = imageUrl("https://images.unsplash.com/photo-1566073771259-6a8506099945", 2000);
+const aboutImage = imageUrl("https://images.unsplash.com/photo-1520250497591-112f2f40a3f4", 1200);
+const detailImage = imageUrl("https://images.unsplash.com/photo-1540541338287-41700207dee6", 900);
+const ctaImage = imageUrl("https://images.unsplash.com/photo-1571896349842-33c89424de2d", 1800);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Hotel",
+  name: hotel.name,
+  description: t.home.heroLead,
+  url: pageUrl,
+  telephone: hotel.phone,
+  email: hotel.email,
+  image: [heroImage, aboutImage, ctaImage],
+  priceRange: "€€€",
+  starRating: { "@type": "Rating", ratingValue: "4" },
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: hotel.address,
+    addressLocality: hotel.city,
+    postalCode: hotel.postalCode,
+    addressCountry: "ES",
+  },
+  geo: { "@type": "GeoCoordinates", latitude: hotel.latitude, longitude: hotel.longitude },
+  amenityFeature: [
+    { "@type": "LocationFeatureSpecification", name: "Wi-Fi", value: true },
+    { "@type": "LocationFeatureSpecification", name: "Pool", value: true },
+    { "@type": "LocationFeatureSpecification", name: "Spa", value: true },
+    { "@type": "LocationFeatureSpecification", name: "Breakfast", value: true },
+  ],
+};
+---
+
+<BaseLayout
+  locale={locale}
+  title={locale === "es"
+    ? "Hotel Miranda · Refugio mediterráneo en Mallorca"
+    : "Hotel Miranda · Mediterranean retreat in Mallorca"}
+  description={t.home.heroLead}
+  image={heroImage}
+  alternatePath={locale === "es" ? "/en/" : "/"}
+  headerVariant="overlay"
+  jsonLd={jsonLd}
+>
+  <section class="relative isolate min-h-[92vh] overflow-hidden bg-ink-900">
+    <img
+      src={heroImage}
+      alt={locale === "es"
+        ? "Terraza del Hotel Miranda frente al mar"
+        : "Hotel Miranda terrace facing the sea"}
+      width="2000"
+      height="1333"
+      loading="eager"
+      fetchpriority="high"
+      decoding="async"
+      class="absolute inset-0 h-full w-full object-cover opacity-70"
+    >
+    <div
+      class="absolute inset-0 bg-gradient-to-r from-ink-900/90 via-ink-900/50 to-ink-900/10"
+    ></div>
+    <div
+      class="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-ink-900/60 to-transparent"
+    ></div>
+
+    <div
+      class="container-miranda relative flex min-h-[92vh] flex-col justify-end pb-28 pt-36 sm:pb-36"
+    >
+      <p class="pretitle animate-rise text-brass-400">{t.home.heroPretitle}</p>
+      <h1 class="display-1 animate-rise mt-5 max-w-4xl text-white" style="animation-delay: 80ms">
+        {t.home.heroTitle}
+      </h1>
+      <p
+        class="animate-rise mt-6 max-w-xl text-base leading-8 text-white/70"
+        style="animation-delay: 160ms"
+      >
+        {t.home.heroLead}
+      </p>
+      <div class="animate-rise mt-8 flex flex-wrap gap-3" style="animation-delay: 240ms">
+        <ButtonLink href={routeFor(locale, "rooms")} variant="gold">
+          {t.home.heroCtaRooms}
+          <Icon name="arrow-right" class="h-4 w-4" />
+        </ButtonLink>
+        <ButtonLink
+          href={routeFor(locale, "offers")}
+          variant="secondary"
+          class="border-white/25 bg-white/10 text-white backdrop-blur hover:bg-white hover:text-ink-900"
+        >
+          {t.home.heroCtaOffers}
+        </ButtonLink>
+      </div>
+    </div>
+  </section>
+
+  <div class="container-miranda relative z-20 -mt-14 sm:-mt-16">
+    <BookingSearch locale={locale} />
+  </div>
+
+  <section id="about" class="container-miranda py-20 lg:py-28">
+    <div class="grid items-center gap-14 lg:grid-cols-[1.05fr_0.95fr]">
+      <div>
+        <SectionHeading
+          pretitle={t.home.aboutPretitle}
+          title={t.home.aboutTitle}
+          description={t.home.aboutLead}
+        />
+        <p class="body mt-5 max-w-xl">{t.home.aboutBody}</p>
+        <div class="mt-8">
+          <ButtonLink href={routeFor(locale, "about")} variant="ghost" class="gap-2">
+            {t.home.aboutCta}
+            <Icon name="arrow-up-right" class="h-4 w-4" />
+          </ButtonLink>
+        </div>
+        <dl class="mt-10 grid grid-cols-2 gap-6 border-t border-ink-900/10 pt-8 sm:grid-cols-4">
+          {stats.map((stat) => (
+            <div>
+              <dt class="font-display text-3xl text-ink-900">{stat.value}</dt>
+              <dd class="mt-1 text-xs leading-5 text-ink-500">
+                {locale === "es" ? stat.labelEs : stat.labelEn}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+
+      <div class="relative mx-auto w-full max-w-lg">
+        <div
+          class="absolute -left-5 -top-5 h-full w-full rounded-[2rem] border border-brass-400/60"
+        ></div>
+        <img
+          src={aboutImage}
+          alt={locale === "es"
+            ? "Arquitectura mediterránea del hotel"
+            : "Mediterranean hotel architecture"}
+          width="1200"
+          height="1500"
+          loading="lazy"
+          decoding="async"
+          class="relative aspect-[4/5] w-full rounded-[2rem] object-cover shadow-2xl"
+        >
+        <img
+          src={detailImage}
+          alt={locale === "es"
+            ? "Desayuno mediterráneo en la terraza"
+            : "Mediterranean breakfast on the terrace"}
+          width="900"
+          height="900"
+          loading="lazy"
+          decoding="async"
+          class="absolute -bottom-8 -left-8 hidden h-44 w-44 rounded-[1.5rem] border-8 border-sand-50 object-cover shadow-xl sm:block"
+        >
+      </div>
+    </div>
+  </section>
+
+  <section id="rooms" class="bg-sand-100 py-20 lg:py-28">
+    <div class="container-miranda">
+      <div class="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
+        <SectionHeading
+          pretitle={t.home.roomsPretitle}
+          title={t.home.roomsTitle}
+          description={t.home.roomsLead}
+        />
+        <ButtonLink href={routeFor(locale, "rooms")} variant="secondary" class="shrink-0">
+          {t.common.viewAllRooms}
+          <Icon name="arrow-right" class="h-4 w-4" />
+        </ButtonLink>
+      </div>
+
+      <div class="mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {featuredRooms.map((room) => <RoomCard room={room} locale={locale} />)}
+      </div>
+    </div>
+  </section>
+
+  <section id="experiences" class="relative overflow-hidden bg-sea-700 py-20 lg:py-28">
+    <div class="absolute -right-20 -top-20 h-96 w-96 rounded-full border border-white/10"></div>
+    <div class="absolute -bottom-32 -left-20 h-96 w-96 rounded-full border border-white/10"></div>
+    <div class="container-miranda relative">
+      <SectionHeading
+        pretitle={t.home.experiencesPretitle}
+        title={t.home.experiencesTitle}
+        description={t.home.experiencesLead}
+        tone="light"
+        align="center"
+      />
+      <div class="mt-12">
+        <ExperienceGrid locale={locale} />
+      </div>
+    </div>
+  </section>
+
+  <section id="offers" class="container-miranda py-20 lg:py-28">
+    <SectionHeading
+      pretitle={t.home.offersPretitle}
+      title={t.home.offersTitle}
+      description={t.home.offersLead}
+      align="center"
+    />
+    <div class="mt-12 grid gap-6 md:grid-cols-2">
+      {homeOffers.map((offer) => <OfferCard offer={offer} locale={locale} />)}
+    </div>
+  </section>
+
+  <section id="gallery" class="bg-sand-100 py-20 lg:py-28">
+    <div class="container-miranda">
+      <SectionHeading
+        pretitle={t.home.galleryPretitle}
+        title={t.home.galleryTitle}
+        align="center"
+      />
+      <div
+        class="mt-12 grid auto-rows-[180px] grid-cols-2 gap-3 sm:auto-rows-[220px] lg:grid-cols-4"
+      >
+        {gallery.map((item, index) => (
+          <div
+            class:list={[
+              "group relative overflow-hidden rounded-[1.25rem] bg-sand-200",
+              index === 0 ? "col-span-2 row-span-2" : "",
+              index === 3 ? "lg:row-span-2" : "",
+            ]}
+          >
+            <img
+              src={imageUrl(item.url, index === 0 ? 1400 : 800)}
+              alt={locale === "es" ? item.altEs : item.altEn}
+              width="800"
+              height="600"
+              loading="lazy"
+              decoding="async"
+              class="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="testimonials" class="container-miranda py-20 lg:py-28">
+    <SectionHeading
+      pretitle={t.home.testimonialsPretitle}
+      title={t.home.testimonialsTitle}
+      align="center"
+    />
+    <div class="mt-12 grid gap-5 md:grid-cols-3">
+      {testimonials.map((testimonial) => (
+        <TestimonialCard testimonial={testimonial} locale={locale} />
+      ))}
+    </div>
+  </section>
+
+  <section class="relative isolate overflow-hidden bg-ink-900 py-24 lg:py-32">
+    <img
+      src={ctaImage}
+      alt=""
+      width="1800"
+      height="1200"
+      loading="lazy"
+      decoding="async"
+      class="absolute inset-0 h-full w-full object-cover opacity-35"
+    >
+    <div
+      class="absolute inset-0 bg-gradient-to-r from-ink-900/90 via-ink-900/60 to-ink-900/30"
+    ></div>
+    <div class="container-miranda relative max-w-3xl">
+      <p class="pretitle text-brass-400">{t.nav.book}</p>
+      <h2 class="display-2 mt-4 text-white">{t.home.ctaTitle}</h2>
+      <p class="mt-5 max-w-xl text-base leading-8 text-white/65">{t.home.ctaLead}</p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <ButtonLink href={routeFor(locale, "rooms")} variant="gold">
+          {t.home.ctaButton}
+          <Icon name="arrow-right" class="h-4 w-4" />
+        </ButtonLink>
+        <ButtonLink
+          href={routeFor(locale, "contact")}
+          variant="secondary"
+          class="border-white/25 bg-white/10 text-white hover:bg-white hover:text-ink-900"
+        >
+          {t.common.contactUs}
+        </ButtonLink>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

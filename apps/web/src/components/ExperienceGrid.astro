@@ -1,0 +1,27 @@
+---
+import { experiences } from "../data/site";
+import type { Locale } from "../i18n/ui";
+import Icon from "./Icon.astro";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+  {experiences.map((experience) => (
+    <article class="rounded-[1.5rem] border border-white/10 bg-white/5 p-6 backdrop-blur">
+      <span class="grid h-12 w-12 place-items-center rounded-full bg-brass-400 text-ink-900">
+        <Icon name={experience.icon} class="h-5 w-5" />
+      </span>
+      <h3 class="mt-6 font-display text-xl text-white">
+        {locale === "es" ? experience.titleEs : experience.titleEn}
+      </h3>
+      <p class="mt-3 text-sm leading-6 text-white/55">
+        {locale === "es" ? experience.textEs : experience.textEn}
+      </p>
+    </article>
+  ))}
+</div>

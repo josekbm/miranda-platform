@@ -1,0 +1,36 @@
+{
+  "name": "miranda",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hotel Miranda — monorepo de web pública, dashboard interno y API",
+  "packageManager": "pnpm@12.21.0",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "predev": "pnpm --filter @miranda/web dev:stop",
+    "dev": "turbo run dev",
+    "dev:stop": "pnpm --filter @miranda/web dev:stop",
+    "build": "turbo run build",
+    "lint": "biome check .",
+    "format": "biome format --write .",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "pretest:e2e": "pnpm --filter @miranda/web dev:stop && pnpm --filter @miranda/web build",
+    "test:e2e": "playwright test",
+    "depcruise": "depcruise apps packages --config .dependency-cruiser.cjs",
+    "db:generate": "pnpm --filter @miranda/api prisma generate",
+    "db:migrate": "pnpm --filter @miranda/api prisma migrate dev",
+    "db:deploy": "pnpm --filter @miranda/api prisma migrate deploy",
+    "db:seed": "pnpm --filter @miranda/api prisma db seed",
+    "openapi:generate": "pnpm --filter @miranda/api openapi:generate",
+    "api-client:generate": "pnpm --filter @miranda/api-client generate"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.8",
+    "@playwright/test": "1.65.1",
+    "dependency-cruiser": "18.8.0",
+    "turbo": "2.11.13",
+    "typescript": "5.9.3"
+  }
+}

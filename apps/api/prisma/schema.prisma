@@ -1,0 +1,243 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  RECEPTIONIST
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum RoomType {
+  SINGLE
+  DOUBLE
+  DOUBLE_SUPERIOR
+  SUITE
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELLED
+  NO_SHOW
+}
+
+enum BookingSource {
+  WEBSITE
+  PHONE
+  WALK_IN
+  ADMIN
+}
+
+enum ContactStatus {
+  NEW
+  READ
+  ARCHIVED
+}
+
+enum Locale {
+  es
+  en
+}
+
+model User {
+  id            String         @id @default(uuid())
+  email         String         @unique
+  passwordHash  String         @map("password_hash")
+  name          String
+  phone         String?
+  role          Role           @default(RECEPTIONIST)
+  status        UserStatus     @default(ACTIVE)
+  avatarUrl     String?        @map("avatar_url")
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+
+  @@map("user")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  tokenHash String    @unique @map("token_hash")
+  userId    String    @map("user_id")
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+  userAgent String?   @map("user_agent")
+  ip        String?
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@map("refresh_token")
+}
+
+model Room {
+  id           String            @id @default(uuid())
+  reference    String            @unique
+  slug         String            @unique
+  roomNumber   String            @unique @map("room_number")
+  type         RoomType
+  priceCents   Int               @map("price_cents")
+  discountPct  Int               @default(0) @map("discount_pct")
+  capacity     Int               @default(2)
+  sizeSqm      Int?              @map("size_sqm")
+  isActive     Boolean           @default(true) @map("is_active")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  updatedAt    DateTime          @updatedAt @map("updated_at")
+  translations RoomTranslation[]
+  images       RoomImage[]
+  amenities    RoomAmenity[]
+  bookings     Booking[]
+
+  @@map("room")
+}
+
+model RoomTranslation {
+  id                 String @id @default(uuid())
+  roomId             String @map("room_id")
+  room               Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  locale             Locale
+  name               String
+  description        String
+  cancellationPolicy String @map("cancellation_policy")
+
+  @@unique([roomId, locale])
+  @@map("room_translation")
+}
+
+model RoomImage {
+  id        String @id @default(uuid())
+  roomId    String @map("room_id")
+  room      Room   @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String?
+  width     Int?
+  height    Int?
+  sortOrder Int    @default(0) @map("sort_order")
+
+  @@index([roomId, sortOrder])
+  @@map("room_image")
+}
+
+model Amenity {
+  id           String               @id @default(uuid())
+  key          String               @unique
+  icon         String?
+  translations AmenityTranslation[]
+  rooms        RoomAmenity[]
+
+  @@map("amenity")
+}
+
+model AmenityTranslation {
+  id        String  @id @default(uuid())
+  amenityId String  @map("amenity_id")
+  amenity   Amenity @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+  locale    Locale
+  name      String
+
+  @@unique([amenityId, locale])
+  @@map("amenity_translation")
+}
+
+model RoomAmenity {
+  roomId    String  @map("room_id")
+  amenityId String  @map("amenity_id")
+  room      Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  amenity   Amenity @relation(fields: [amenityId], references: [id], onDelete: Cascade)
+
+  @@id([roomId, amenityId])
+  @@map("room_amenity")
+}
+
+model Booking {
+  id              String        @id @default(uuid())
+  reference       String        @unique
+  roomId          String        @map("room_id")
+  room            Room          @relation(fields: [roomId], references: [id], onDelete: Restrict)
+  guestName       String        @map("guest_name")
+  guestEmail      String        @map("guest_email")
+  guestPhone      String        @map("guest_phone")
+  checkIn         DateTime      @db.Date @map("check_in")
+  checkOut        DateTime      @db.Date @map("check_out")
+  status          BookingStatus @default(PENDING)
+  totalCents      Int           @map("total_cents")
+  specialRequests String?       @map("special_requests")
+  source          BookingSource @default(WEBSITE)
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  @@index([roomId, checkIn, checkOut])
+  @@index([status, checkIn])
+  @@map("booking")
+}
+
+model Contact {
+  id        String        @id @default(uuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String
+  message   String
+  status    ContactStatus @default(NEW)
+  locale    Locale        @default(es)
+  createdAt DateTime      @default(now()) @map("created_at")
+  updatedAt DateTime      @updatedAt @map("updated_at")
+
+  @@index([status, createdAt])
+  @@map("contact")
+}
+
+model Offer {
+  id           String             @id @default(uuid())
+  slug         String             @unique
+  discountPct  Int                @map("discount_pct")
+  startsAt     DateTime?          @map("starts_at")
+  endsAt       DateTime?          @map("ends_at")
+  isActive     Boolean            @default(true) @map("is_active")
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
+  translations OfferTranslation[]
+
+  @@map("offer")
+}
+
+model OfferTranslation {
+  id          String  @id @default(uuid())
+  offerId     String  @map("offer_id")
+  offer       Offer   @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  locale      Locale
+  title       String
+  description String
+
+  @@unique([offerId, locale])
+  @@map("offer_translation")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id")
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  entity    String
+  entityId  String?  @map("entity_id")
+  diff      Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([entity, entityId])
+  @@index([createdAt])
+  @@map("audit_log")
+}

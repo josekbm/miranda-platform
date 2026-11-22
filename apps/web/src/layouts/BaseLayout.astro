@@ -1,0 +1,81 @@
+---
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import "../styles/global.css";
+import type { Locale } from "../i18n/ui";
+import { alternatePath as getAlternatePath, getTranslations } from "../i18n/ui";
+
+interface Props {
+  locale: Locale;
+  title: string;
+  description: string;
+  image?: string;
+  alternatePath?: string;
+  headerVariant?: "overlay" | "solid";
+  jsonLd?: Record<string, unknown>;
+}
+
+const {
+  locale,
+  title,
+  description,
+  image = "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80",
+  alternatePath,
+  headerVariant = "solid",
+  jsonLd,
+} = Astro.props;
+
+const t = getTranslations(locale);
+const site = Astro.site ?? new URL(Astro.url.origin);
+const canonical = new URL(Astro.url.pathname, site).toString();
+const alternate = new URL(
+  alternatePath ?? getAlternatePath(Astro.url.pathname, locale),
+  site,
+).toString();
+const esUrl = locale === "es" ? canonical : alternate;
+const enUrl = locale === "en" ? canonical : alternate;
+const ogImage = image.startsWith("http") ? image : new URL(image, site).toString();
+const ogLocale = locale === "es" ? "es_ES" : "en_GB";
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FAF6EF">
+    <title>{title}</title>
+    <meta name="description" content={description}>
+    <link rel="canonical" href={canonical}>
+    <link rel="alternate" hreflang="es" href={esUrl}>
+    <link rel="alternate" hreflang="en" href={enUrl}>
+    <link rel="alternate" hreflang="x-default" href={esUrl}>
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Hotel Miranda">
+    <meta property="og:title" content={title}>
+    <meta property="og:description" content={description}>
+    <meta property="og:url" content={canonical}>
+    <meta property="og:image" content={ogImage}>
+    <meta property="og:locale" content={ogLocale}>
+    <meta property="og:locale:alternate" content={locale === "es" ? "en_GB" : "es_ES"}>
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content={title}>
+    <meta name="twitter:description" content={description}>
+    <meta name="twitter:image" content={ogImage}>
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+  </head>
+  <body class="overflow-x-hidden bg-sand-50 text-ink-900">
+    <a href="#main" class="skip-link">{t.common.skipToContent}</a>
+    <Header locale={locale} currentPath={Astro.url.pathname} variant={headerVariant} />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer locale={locale} />
+  </body>
+</html>

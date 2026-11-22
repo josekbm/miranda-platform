@@ -1,0 +1,48 @@
+---
+import { imageUrl } from "../data/site";
+import type { Locale } from "../i18n/ui";
+import { getTranslations, routeFor } from "../i18n/ui";
+import Icon from "./Icon.astro";
+
+interface Props {
+  locale: Locale;
+  pretitle: string;
+  title: string;
+  lead?: string;
+  image: string;
+  breadcrumb: string;
+}
+
+const { locale, pretitle, title, lead, image, breadcrumb } = Astro.props;
+const t = getTranslations(locale);
+---
+
+<section class="relative isolate overflow-hidden bg-ink-900">
+  <img
+    src={imageUrl(image, 1800)}
+    alt=""
+    width="1800"
+    height="1200"
+    loading="eager"
+    decoding="async"
+    class="absolute inset-0 h-full w-full object-cover opacity-55"
+  >
+  <div class="absolute inset-0 bg-gradient-to-r from-ink-900/90 via-ink-900/55 to-ink-900/10"></div>
+
+  <div class="container-miranda relative py-16 sm:py-20 lg:py-28">
+    <nav
+      class="flex items-center gap-2 text-[11px] font-medium uppercase tracking-[0.18em] text-white/50"
+      aria-label="Breadcrumb"
+    >
+      <a href={routeFor(locale, "home")} class="transition hover:text-white"
+        >{t.common.breadcrumbHome}</a
+      >
+      <Icon name="arrow-right" class="h-3 w-3" />
+      <span class="text-brass-400">{breadcrumb}</span>
+    </nav>
+
+    <p class="pretitle mt-10 text-brass-400">{pretitle}</p>
+    <h1 class="display-2 mt-4 max-w-4xl text-white">{title}</h1>
+    {lead && <p class="mt-6 max-w-2xl text-base leading-8 text-white/65">{lead}</p>}
+  </div>
+</section>

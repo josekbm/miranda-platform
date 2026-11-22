@@ -1,0 +1,29 @@
+---
+import ButtonLink from "../components/ButtonLink.astro";
+import Icon from "../components/Icon.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+export const prerender = true;
+---
+
+<BaseLayout
+  locale="es"
+  title="Página no encontrada · Hotel Miranda"
+  description="La página que buscas no existe o ha cambiado de sitio."
+  headerVariant="solid"
+>
+  <section class="container-miranda flex min-h-[60vh] flex-col justify-center py-24">
+    <p class="pretitle">Error 404</p>
+    <h1 class="display-2 mt-4 max-w-2xl">Esta página se ha ido a navegar.</h1>
+    <p class="body-lg mt-5 max-w-xl">
+      No encontramos lo que buscabas. Puede que el enlace haya cambiado o que la página ya no esté
+      disponible.
+    </p>
+    <div class="mt-8">
+      <ButtonLink href="/" variant="primary">
+        Volver al inicio
+        <Icon name="arrow-right" class="h-4 w-4" />
+      </ButtonLink>
+    </div>
+  </section>
+</BaseLayout>

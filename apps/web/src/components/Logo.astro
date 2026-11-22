@@ -1,0 +1,47 @@
+---
+interface Props {
+  href?: string;
+  variant?: "light" | "dark";
+  class?: string;
+}
+
+const { href = "/", variant = "dark", class: className = "" } = Astro.props;
+const light = variant === "light";
+---
+
+<a
+  href={href}
+  class:list={["group inline-flex items-center gap-3", className]}
+  aria-label="Hotel Miranda"
+>
+  <span
+    class:list={[
+      "grid h-10 w-10 place-items-center rounded-full border transition duration-300",
+      light
+        ? "border-white/30 bg-white/10 text-white group-hover:border-brass-400"
+        : "border-ink-900/15 bg-brass-400 text-ink-900 group-hover:border-sea-700",
+    ]}
+  >
+    <svg viewBox="0 0 64 64" class="h-6 w-6" aria-hidden="true">
+      <path d="M16 46V18h6l10 16 10-16h6v28h-6V29L32 44 22 29v17z" fill="currentColor" />
+    </svg>
+  </span>
+  <span class="flex flex-col leading-none">
+    <span
+      class:list={[
+        "font-display text-xl tracking-[-0.02em]",
+        light ? "text-white" : "text-ink-900",
+      ]}
+    >
+      Hotel Miranda
+    </span>
+    <span
+      class:list={[
+        "mt-1.5 text-[8px] font-semibold uppercase tracking-[0.32em]",
+        light ? "text-white/55" : "text-ink-500",
+      ]}
+    >
+      Mediterranean retreat
+    </span>
+  </span>
+</a>

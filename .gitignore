@@ -1,0 +1,47 @@
+# Dependencias
+node_modules/
+.pnpm-store/
+
+# Builds
+dist/
+build/
+.turbo/
+.astro/
+coverage/
+playwright-report/
+test-results/
+
+# Entorno
+.env
+.env.*
+!.env.example
+!**/.env.example
+
+# Sistema / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Notas privadas de despliegue (IPs, dominios internos, credenciales, IDs de NPM)
+/docs/private/
+*.private.md
+
+# Herramientas de IA y notas internas de trabajo
+.opencode/
+.claude/
+.cursor/
+.aider*
+AGENTS.md
+CLAUDE.md
+GEMINI.md
+PLAN.md
+ROADMAP.md
+.github/copilot-instructions.md
+
+# Proyectos antiguos (se conservan como referencia, no se trackean)
+/dashboard-miranda/
+/Hotel-Miranda-HTML/
+/Miranda-Backend/
+
+# Prisma generado
+**/src/generated/prisma/

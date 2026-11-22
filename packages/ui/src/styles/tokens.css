@@ -1,0 +1,66 @@
+@theme {
+  --color-sand-50: #faf6ef;
+  --color-sand-100: #f3ece0;
+  --color-sand-200: #e8dccb;
+  --color-ink-900: #1d1b18;
+  --color-ink-700: #3b3731;
+  --color-ink-500: #6e675d;
+  --color-terracotta-500: #b4553a;
+  --color-terracotta-600: #98452e;
+  --color-olive-500: #6c7a50;
+  --color-sea-700: #1f4e5a;
+  --color-brass-400: #c9a96a;
+  --color-success: #3f7a5a;
+  --color-warning: #c58a2e;
+  --color-danger: #b23a3a;
+
+  --color-background: var(--miranda-bg);
+  --color-surface: var(--miranda-surface);
+  --color-surface-muted: var(--miranda-surface-muted);
+  --color-foreground: var(--miranda-text);
+  --color-muted: var(--miranda-text-muted);
+  --color-primary: var(--miranda-primary);
+  --color-accent: var(--miranda-accent);
+  --color-border: var(--miranda-border);
+
+  --font-sans: "Inter", "Archivo", system-ui, sans-serif;
+  --font-display: "Fraunces", "Old Standard TT", Georgia, serif;
+
+  --radius-sm: 2px;
+  --radius-md: 8px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgb(29 27 24 / 0.06);
+  --shadow-md: 0 8px 24px rgb(29 27 24 / 0.08);
+  --shadow-lg: 0 24px 64px rgb(29 27 24 / 0.12);
+}
+
+:root {
+  --miranda-bg: var(--color-sand-50);
+  --miranda-surface: #ffffff;
+  --miranda-surface-muted: var(--color-sand-100);
+  --miranda-text: var(--color-ink-900);
+  --miranda-text-muted: var(--color-ink-500);
+  --miranda-primary: var(--color-sea-700);
+  --miranda-accent: var(--color-brass-400);
+  --miranda-border: rgb(29 27 24 / 0.1);
+
+  --miranda-font-display: var(--font-display);
+  --miranda-font-sans: var(--font-sans);
+
+  --miranda-duration-fast: 150ms;
+  --miranda-duration-base: 250ms;
+  --miranda-duration-slow: 400ms;
+}
+
+:root.dark {
+  --miranda-bg: #141210;
+  --miranda-surface: #1d1b18;
+  --miranda-surface-muted: #23201c;
+  --miranda-text: #f3ece0;
+  --miranda-text-muted: #b8afa2;
+  --miranda-primary: #8fb7bf;
+  --miranda-accent: #d8bd83;
+  --miranda-border: rgb(243 236 224 / 0.12);
+}

@@ -1,0 +1,30 @@
+---
+import type { Testimonial } from "../data/site";
+import type { Locale } from "../i18n/ui";
+import Icon from "./Icon.astro";
+
+interface Props {
+  testimonial: Testimonial;
+  locale: Locale;
+}
+
+const { testimonial, locale } = Astro.props;
+const quote = locale === "es" ? testimonial.quoteEs : testimonial.quoteEn;
+const origin = locale === "es" ? testimonial.originEs : testimonial.originEn;
+---
+
+<figure class="flex h-full flex-col rounded-[1.5rem] border border-ink-900/10 bg-white p-6">
+  <div class="flex items-center justify-between">
+    <Icon name="quote" class="h-7 w-7 text-brass-400" />
+    <div class="flex gap-0.5 text-brass-400" role="img" aria-label="5 / 5">
+      {Array.from({ length: 5 }).map(() => (
+        <Icon name="star" class="h-3.5 w-3.5 fill-current" strokeWidth={0} />
+      ))}
+    </div>
+  </div>
+  <blockquote class="mt-5 flex-1 font-display text-xl leading-8 text-ink-900">“{quote}”</blockquote>
+  <figcaption class="mt-6 border-t border-ink-900/10 pt-4">
+    <p class="text-sm font-semibold text-ink-900">{testimonial.name}</p>
+    <p class="mt-0.5 text-xs text-ink-500">{origin}</p>
+  </figcaption>
+</figure>

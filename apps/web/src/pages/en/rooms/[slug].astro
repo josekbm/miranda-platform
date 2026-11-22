@@ -1,0 +1,16 @@
+---
+import RoomDetailPage from "../../../components/pages/RoomDetailPage.astro";
+import { fetchPublicRoom, fetchPublicRooms } from "../../../lib/api";
+
+const slug = Astro.params.slug ?? "";
+const room = await fetchPublicRoom("en", slug);
+
+if (!room) {
+  return Astro.rewrite("/404");
+}
+
+const allRooms = await fetchPublicRooms("en");
+const relatedRooms = allRooms.filter((item) => item.id !== room.id).slice(0, 3);
+---
+
+<RoomDetailPage locale="en" room={room} relatedRooms={relatedRooms} />

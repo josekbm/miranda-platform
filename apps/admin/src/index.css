@@ -1,0 +1,65 @@
+@import "tailwindcss";
+@import "@miranda/ui/styles/tokens.css";
+
+@layer base {
+  html {
+    background-color: var(--miranda-bg);
+    color: var(--miranda-text);
+    font-family: var(--font-sans);
+  }
+
+  body {
+    min-width: 320px;
+    margin: 0;
+    @apply bg-background text-foreground antialiased;
+  }
+
+  ::selection {
+    background: var(--color-brass-400);
+    color: var(--color-ink-900);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-terracotta-500);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .admin-card {
+    @apply rounded-2xl border border-border bg-surface shadow-sm;
+  }
+
+  .admin-input {
+    @apply w-full rounded-xl border border-border bg-surface px-3.5 py-2.5 text-sm text-foreground placeholder:text-muted focus:border-primary focus:outline-none;
+  }
+
+  .admin-label {
+    @apply text-[10px] font-semibold uppercase tracking-[0.16em] text-muted;
+  }
+
+  .admin-table-head {
+    @apply text-left text-[10px] font-semibold uppercase tracking-[0.16em] text-muted;
+  }
+}
+
+@keyframes admin-fade {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-admin-fade {
+  animation: admin-fade 0.35s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-admin-fade {
+    animation: none;
+  }
+}

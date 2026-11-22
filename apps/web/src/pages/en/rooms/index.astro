@@ -1,0 +1,8 @@
+---
+import RoomsPage from "../../../components/pages/RoomsPage.astro";
+import { fetchPublicRooms } from "../../../lib/api";
+
+const roomsData = await fetchPublicRooms("en");
+---
+
+<RoomsPage locale="en" roomsData={roomsData} />

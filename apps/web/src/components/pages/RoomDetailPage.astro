@@ -1,0 +1,275 @@
+---
+import {
+  formatPrice,
+  getRelatedRooms,
+  nightlyRateCents,
+  type RoomData,
+  roomAmenities,
+  roomCancellation,
+  roomDescription,
+  roomName,
+  roomTypeLabel,
+} from "../../data/rooms";
+import { imageUrl } from "../../data/site";
+import type { Locale } from "../../i18n/ui";
+import { getTranslations, routeFor } from "../../i18n/ui";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import ButtonLink from "../ButtonLink.astro";
+import Icon from "../Icon.astro";
+import PageHero from "../PageHero.astro";
+import RoomCard from "../RoomCard.astro";
+import RoomGallery from "../RoomGallery.astro";
+import SectionHeading from "../SectionHeading.astro";
+
+interface Props {
+  locale: Locale;
+  room: RoomData;
+  relatedRooms?: RoomData[];
+}
+
+const { locale, room, relatedRooms = getRelatedRooms(room) } = Astro.props;
+const t = getTranslations(locale);
+const name = roomName(room, locale);
+const description = roomDescription(room, locale);
+const type = roomTypeLabel(room.type, locale);
+const cancellation = roomCancellation(room, locale);
+const amenities = roomAmenities(room);
+const price = formatPrice(nightlyRateCents(room), locale);
+const originalPrice = formatPrice(room.priceCents, locale);
+const related = relatedRooms;
+const contactHref = `${routeFor(locale, "contact")}?room=${room.slug}`;
+const today = new Date().toISOString().slice(0, 10);
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "HotelRoom",
+  name,
+  description,
+  image: room.images.map((image) => imageUrl(image.url, 1600)),
+  occupancy: { "@type": "QuantitativeValue", maxValue: room.capacity },
+  floorSize: { "@type": "QuantitativeValue", value: room.sizeSqm, unitCode: "MTK" },
+  amenityFeature: amenities.map((amenity) => ({
+    "@type": "LocationFeatureSpecification",
+    name: locale === "es" ? amenity.labelEs : amenity.labelEn,
+    value: true,
+  })),
+  offers: {
+    "@type": "Offer",
+    priceCurrency: "EUR",
+    price: (nightlyRateCents(room) / 100).toFixed(2),
+    availability: "https://schema.org/InStock",
+  },
+};
+---
+
+<BaseLayout
+  locale={locale}
+  title={`${name} · Hotel Miranda`}
+  description={description}
+  image={imageUrl(room.images[0].url, 1600)}
+  alternatePath={locale === "es" ? `/en/rooms/${room.slug}` : `/habitaciones/${room.slug}`}
+  jsonLd={jsonLd}
+>
+  <PageHero
+    locale={locale}
+    pretitle={type}
+    title={name}
+    lead={description}
+    image={room.images[0].url}
+    breadcrumb={name}
+  />
+
+  <section class="container-miranda py-14 lg:py-20">
+    <div class="grid gap-12 lg:grid-cols-[1.45fr_0.75fr]">
+      <div>
+        <RoomGallery room={room} locale={locale} />
+
+        <div class="mt-12">
+          <p class="pretitle">{locale === "es" ? "La habitación" : "The room"}</p>
+          <h2 class="display-3 mt-3">{name}</h2>
+          <p class="body-lg mt-5 max-w-2xl">{description}</p>
+
+          <dl class="mt-8 grid gap-4 sm:grid-cols-3">
+            <div class="rounded-[1.25rem] border border-ink-900/10 bg-white p-5">
+              <dt class="text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-500">
+                {t.rooms.capacity}
+              </dt>
+              <dd class="mt-2 font-display text-2xl text-ink-900">
+                {room.capacity} {locale === "es" ? "huéspedes" : "guests"}
+              </dd>
+            </div>
+            <div class="rounded-[1.25rem] border border-ink-900/10 bg-white p-5">
+              <dt class="text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-500">
+                {t.rooms.size}
+              </dt>
+              <dd class="mt-2 font-display text-2xl text-ink-900">{room.sizeSqm} m²</dd>
+            </div>
+            <div class="rounded-[1.25rem] border border-ink-900/10 bg-white p-5">
+              <dt class="text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-500">
+                {locale === "es" ? "Número" : "Number"}
+              </dt>
+              <dd class="mt-2 font-display text-2xl text-ink-900">{room.roomNumber}</dd>
+            </div>
+          </dl>
+
+          <div class="mt-10">
+            <h3 class="font-display text-2xl text-ink-900">{t.rooms.amenities}</h3>
+            <div class="mt-5 grid gap-3 sm:grid-cols-2">
+              {amenities.map((amenity) => (
+                <div class="flex items-center gap-3 rounded-full border border-ink-900/10 bg-white px-4 py-3">
+                  <span class="grid h-8 w-8 place-items-center rounded-full bg-sand-100 text-sea-700">
+                    <Icon name={amenity.icon} class="h-4 w-4" />
+                  </span>
+                  <span class="text-sm text-ink-700">
+                    {locale === "es" ? amenity.labelEs : amenity.labelEn}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div
+            class="mt-10 rounded-[1.5rem] border border-terracotta-500/20 bg-terracotta-500/5 p-6"
+          >
+            <div class="flex items-start gap-4">
+              <span
+                class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-terracotta-500 text-white"
+              >
+                <Icon name="calendar" class="h-5 w-5" />
+              </span>
+              <div>
+                <h3 class="font-display text-xl text-ink-900">{t.rooms.cancellation}</h3>
+                <p class="mt-2 text-sm leading-6 text-ink-500">{cancellation}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside id="booking" class="lg:sticky lg:top-28 lg:self-start">
+        <div
+          class="rounded-[1.75rem] border border-ink-900/10 bg-white p-6 shadow-[0_24px_80px_rgba(29,27,24,0.1)]"
+        >
+          <p class="text-[10px] font-semibold uppercase tracking-[0.2em] text-ink-500">
+            {t.rooms.from}
+          </p>
+          <div class="mt-2 flex items-end gap-2">
+            <p class="font-display text-4xl text-ink-900">{price}</p>
+            <p class="pb-1 text-xs text-ink-500">{t.rooms.perNight}</p>
+          </div>
+          {room.discountPct > 0 && (
+            <p class="mt-1 text-xs text-ink-500">
+              <span class="line-through">{originalPrice}</span> · {t.rooms.discount} -
+              {room.discountPct}%
+            </p>
+          )}
+
+          <div class="mt-6 border-t border-ink-900/10 pt-6">
+            <h3 class="font-display text-xl text-ink-900">{t.rooms.bookingTitle}</h3>
+            <p class="mt-2 text-sm leading-6 text-ink-500">{t.rooms.bookingLead}</p>
+
+            <form action={contactHref} method="get" class="mt-5 space-y-4">
+              <input type="hidden" name="room" value={room.slug}>
+              <div>
+                <label
+                  for="room-check-in"
+                  class="text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-500"
+                >
+                  {t.rooms.arrival}
+                </label>
+                <input
+                  id="room-check-in"
+                  name="checkIn"
+                  type="date"
+                  min={today}
+                  required
+                  class="mt-2 w-full rounded-xl border border-ink-900/15 bg-sand-50 px-4 py-3 text-sm text-ink-900 focus:border-sea-700 focus:outline-none"
+                >
+              </div>
+              <div>
+                <label
+                  for="room-check-out"
+                  class="text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-500"
+                >
+                  {t.rooms.departure}
+                </label>
+                <input
+                  id="room-check-out"
+                  name="checkOut"
+                  type="date"
+                  min={today}
+                  required
+                  class="mt-2 w-full rounded-xl border border-ink-900/15 bg-sand-50 px-4 py-3 text-sm text-ink-900 focus:border-sea-700 focus:outline-none"
+                >
+              </div>
+              <div>
+                <label
+                  for="room-guests"
+                  class="text-[10px] font-semibold uppercase tracking-[0.18em] text-ink-500"
+                >
+                  {t.rooms.guests}
+                </label>
+                <select
+                  id="room-guests"
+                  name="guests"
+                  class="mt-2 w-full rounded-xl border border-ink-900/15 bg-sand-50 px-4 py-3 text-sm text-ink-900 focus:border-sea-700 focus:outline-none"
+                >
+                  {Array.from({ length: room.capacity }).map((_, index) => (
+                    <option value={index + 1} selected={index + 1 === 2}>
+                      {index + 1}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <button type="submit" class="btn-gold w-full">
+                {t.rooms.checkAvailability}
+                <Icon name="arrow-right" class="h-4 w-4" />
+              </button>
+            </form>
+
+            <div class="mt-5 space-y-2 border-t border-ink-900/10 pt-5 text-xs text-ink-500">
+              <p class="flex items-center gap-2">
+                <Icon name="check" class="h-4 w-4 text-sea-700" />
+                {locale === "es" ? "Desayuno incluido" : "Breakfast included"}
+              </p>
+              <p class="flex items-center gap-2">
+                <Icon name="check" class="h-4 w-4 text-sea-700" />
+                {locale === "es" ? "Confirmación en menos de 24 h" : "Confirmation within 24 h"}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="mt-4 rounded-[1.5rem] border border-ink-900/10 bg-sand-100 p-5 text-sm text-ink-500"
+        >
+          <p class="flex items-center gap-2">
+            <Icon name="phone" class="h-4 w-4 text-terracotta-500" />
+            {locale === "es" ? "¿Prefieres hablar?" : "Prefer to talk?"}
+          </p>
+          <a
+            href="tel:+34971000000"
+            class="mt-2 block font-semibold text-ink-900 hover:text-terracotta-500"
+          >
+            +34 971 000 000
+          </a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="bg-sand-100 py-16 lg:py-24">
+    <div class="container-miranda">
+      <div class="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <SectionHeading title={t.rooms.related} />
+        <ButtonLink href={routeFor(locale, "rooms")} variant="secondary">
+          {t.common.viewAllRooms}
+          <Icon name="arrow-right" class="h-4 w-4" />
+        </ButtonLink>
+      </div>
+      <div class="mt-10 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        {related.map((item) => <RoomCard room={item} locale={locale} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
