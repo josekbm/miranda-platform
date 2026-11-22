@@ -42,6 +42,6 @@ Los proyectos antiguos se conservan intactos en sus carpetas y se ignoran por Gi
 
 ## Referencias
 
-- `docs/adr/ADR-0001-monorepo.md`
 - `pnpm-workspace.yaml`
 - `turbo.json`
+- `package.json`

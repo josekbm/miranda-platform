@@ -60,5 +60,6 @@ Se aplica a los contextos con reglas. Los CRUD triviales y las pantallas de solo
 
 ## Referencias
 
-- `docs/adr/ADR-0002-hexagonal-architecture.md`
 - `.dependency-cruiser.cjs`
+- `apps/api/src/modules/bookings/`
+- `apps/admin/src/domain/`
